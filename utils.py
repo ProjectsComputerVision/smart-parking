@@ -3,10 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import yolov5
 
-def drawImg(img: np.ndarray, xmin, ymin, xmax, ymax, label:str):
+colors = {
+    0: (46, 204, 112),
+    1: (255, 121, 121)
+}
+labels = {0: 'car', 1: 'licence'}
+
+def drawImg(img: np.ndarray, xmin, ymin, xmax, ymax, name, label):
     start_point = (int(xmin), int(ymin))
     end_point = (int(xmax), int(ymax))
-    color = (255, 121, 121)
+    color = colors[label]
 
     img = cv2.rectangle(
         img,
@@ -16,7 +22,7 @@ def drawImg(img: np.ndarray, xmin, ymin, xmax, ymax, label:str):
         thickness = 2
         )
     text_size, _ = cv2.getTextSize(
-        label,
+        name,
         fontFace=cv2.FONT_HERSHEY_DUPLEX,
         fontScale=0.6,
         thickness=1
@@ -32,7 +38,7 @@ def drawImg(img: np.ndarray, xmin, ymin, xmax, ymax, label:str):
         )
     img = cv2.putText(
         img,
-        label,
+        name,
         org=(int(xmin), int(ymin) - 5),
         fontFace=cv2.FONT_HERSHEY_DUPLEX,
         fontScale=0.6,
@@ -44,11 +50,12 @@ def drawImg(img: np.ndarray, xmin, ymin, xmax, ymax, label:str):
 
     
 def imgProcess(img, data):
-    labels = {0: 'licence'}
+
     for points in data:
         xmin, ymin, xmax, ymax, confidence,label = points
-        label = labels[int(label)] + ' ' + str(round(confidence, 2))
-        img = drawImg(img, xmin, ymin, xmax, ymax, str(label))
+        if confidence > 0.5:
+            name = labels[int(label)] + ' ' + str(round(confidence, 2))
+            img = drawImg(img, xmin, ymin, xmax, ymax, name, int(label))
         
     return img
 
